@@ -54,7 +54,8 @@ def init_components():
         'dynamic_analyzer': {'status': 'unavailable', 'instance': None, 'error': None},
         'batch_processor': {'status': 'unavailable', 'instance': None, 'error': None},
         'model_explainer': {'status': 'unavailable', 'instance': None, 'error': None},
-        'realtime_monitor': {'status': 'unavailable', 'instance': None, 'error': None}
+        'realtime_monitor': {'status': 'unavailable', 'instance': None, 'error': None},
+        'interview_generator': {'status': 'unavailable', 'instance': None, 'error': None}
     }
     
     # Try to initialize ML model
@@ -151,6 +152,16 @@ def init_components():
     except Exception as e:
         logger.error(f"Error loading realtime monitor: {e}")
         components['realtime_monitor']['error'] = str(e)
+    
+    # Try to initialize interview question generator
+    try:
+        from interview_questions import InterviewQuestionGenerator
+        components['interview_generator']['instance'] = InterviewQuestionGenerator()
+        components['interview_generator']['status'] = 'available'
+        logger.info("Interview question generator loaded successfully")
+    except Exception as e:
+        logger.error(f"Error loading interview question generator: {e}")
+        components['interview_generator']['error'] = str(e)
     
     return components
 
@@ -355,7 +366,7 @@ def analyze():
     if 'file' not in request.files:
         return render_template('index.html', error="No file provided")
 
-        file = request.files['file']
+    file = request.files['file']
     if file.filename == '':
         return render_template('index.html', error="No file selected")
 
@@ -432,7 +443,6 @@ def batch_analysis():
 @app.route('/realtime', methods=['GET', 'POST'])
 def realtime_monitoring():
     """Manage real-time monitoring"""
-    global COMPONENTS['realtime_monitor']['instance']
     
     if request.method == 'POST':
         action = request.form.get('action')
@@ -510,7 +520,7 @@ def api_analyze():
             # Clean filename and save file
             filename = secure_filename(file.filename)
             file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+            file.save(file_path)
 
             # Analyze the file
             result = analyze_file(file_path)
@@ -539,7 +549,7 @@ def api_status():
 @app.route('/api/realtime/start', methods=['POST'])
 def api_realtime_start():
     """API endpoint to start real-time monitoring"""
-    global COMPONENTS['realtime_monitor']['instance']
+    global COMPONENTS
     
     if 'realtime_monitor' not in COMPONENTS or COMPONENTS['realtime_monitor']['status'] != 'available' or not COMPONENTS['realtime_monitor']['instance']:
         return jsonify({"error": "Real-time monitoring is not available"}), 400
@@ -563,7 +573,7 @@ def api_realtime_start():
 @app.route('/api/realtime/stop', methods=['POST'])
 def api_realtime_stop():
     """API endpoint to stop real-time monitoring"""
-    global COMPONENTS['realtime_monitor']['instance']
+    global COMPONENTS
     
     if not COMPONENTS['realtime_monitor']['instance'] or not COMPONENTS['realtime_monitor']['instance'].is_running:
         return jsonify({"error": "Real-time monitoring is not running"}), 400
@@ -578,7 +588,7 @@ def api_realtime_stop():
 @app.route('/api/realtime/status', methods=['GET'])
 def api_realtime_status():
     """API endpoint to get real-time monitoring status"""
-    global COMPONENTS['realtime_monitor']['instance']
+    global COMPONENTS
     
     if not COMPONENTS['realtime_monitor']['instance']:
         return jsonify({
@@ -594,6 +604,170 @@ def api_realtime_status():
         })
     except Exception as e:
         logger.error(f"API error getting monitoring status: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Interview Question Routes
+@app.route('/interview')
+def interview_home():
+    """Display the interview question interface"""
+    if COMPONENTS['interview_generator']['status'] != 'available':
+        return render_template('error.html', 
+                             error="Interview question generator is not available")
+    
+    generator = COMPONENTS['interview_generator']['instance']
+    topics = generator.get_available_topics()
+    difficulties = generator.get_available_difficulties()
+    stats = generator.get_topic_stats()
+    
+    return render_template('interview.html', 
+                         topics=topics, 
+                         difficulties=difficulties,
+                         stats=stats)
+
+@app.route('/interview/question', methods=['GET', 'POST'])
+def get_interview_question():
+    """Get a single interview question"""
+    if COMPONENTS['interview_generator']['status'] != 'available':
+        return jsonify({"error": "Interview question generator is not available"}), 400
+    
+    generator = COMPONENTS['interview_generator']['instance']
+    
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        topic = data.get('topic')
+        difficulty = data.get('difficulty')
+    else:
+        topic = request.args.get('topic')
+        difficulty = request.args.get('difficulty')
+    
+    try:
+        question = generator.get_random_question(topic=topic, difficulty=difficulty)
+        return jsonify(question)
+    except Exception as e:
+        logger.error(f"Error getting interview question: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/interview/question-set', methods=['GET', 'POST'])
+def get_interview_question_set():
+    """Get a set of interview questions"""
+    if COMPONENTS['interview_generator']['status'] != 'available':
+        return jsonify({"error": "Interview question generator is not available"}), 400
+    
+    generator = COMPONENTS['interview_generator']['instance']
+    
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        count = data.get('count', 5)
+        topic = data.get('topic')
+        difficulty = data.get('difficulty')
+        include_scenarios = data.get('include_scenarios', False)
+    else:
+        count = request.args.get('count', type=int, default=5)
+        topic = request.args.get('topic')
+        difficulty = request.args.get('difficulty')
+        include_scenarios = request.args.get('include_scenarios', type=bool, default=False)
+    
+    try:
+        questions = generator.get_question_set(
+            count=count,
+            topic=topic,
+            difficulty=difficulty,
+            include_scenarios=include_scenarios
+        )
+        return jsonify({
+            "questions": questions,
+            "count": len(questions),
+            "filters": {
+                "topic": topic,
+                "difficulty": difficulty,
+                "include_scenarios": include_scenarios
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error getting interview question set: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/interview/practice', methods=['GET', 'POST'])
+def interview_practice():
+    """Practice interview interface"""
+    if COMPONENTS['interview_generator']['status'] != 'available':
+        return render_template('error.html', 
+                             error="Interview question generator is not available")
+    
+    generator = COMPONENTS['interview_generator']['instance']
+    
+    if request.method == 'POST':
+        # Get practice session configuration
+        topic = request.form.get('topic')
+        difficulty = request.form.get('difficulty')
+        count = int(request.form.get('count', 5))
+        include_scenarios = 'include_scenarios' in request.form
+        
+        # Generate question set
+        questions = generator.get_question_set(
+            count=count,
+            topic=topic if topic != 'all' else None,
+            difficulty=difficulty if difficulty != 'all' else None,
+            include_scenarios=include_scenarios
+        )
+        
+        return render_template('interview_practice.html', 
+                             questions=questions,
+                             session_config={
+                                 'topic': topic,
+                                 'difficulty': difficulty,
+                                 'count': count,
+                                 'include_scenarios': include_scenarios
+                             })
+    
+    # GET request - show configuration form
+    topics = generator.get_available_topics()
+    difficulties = generator.get_available_difficulties()
+    return render_template('interview_config.html', 
+                         topics=topics, 
+                         difficulties=difficulties)
+
+@app.route('/api/interview/topics', methods=['GET'])
+def api_interview_topics():
+    """API endpoint to get available interview topics"""
+    if COMPONENTS['interview_generator']['status'] != 'available':
+        return jsonify({"error": "Interview question generator is not available"}), 400
+    
+    generator = COMPONENTS['interview_generator']['instance']
+    return jsonify({
+        "topics": generator.get_available_topics(),
+        "difficulties": generator.get_available_difficulties(),
+        "stats": generator.get_topic_stats()
+    })
+
+@app.route('/api/interview/export', methods=['POST'])
+def api_interview_export():
+    """API endpoint to export interview questions"""
+    if COMPONENTS['interview_generator']['status'] != 'available':
+        return jsonify({"error": "Interview question generator is not available"}), 400
+    
+    try:
+        generator = COMPONENTS['interview_generator']['instance']
+        
+        # Create export file
+        import tempfile
+        import os
+        
+        temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
+        temp_file.close()
+        
+        success = generator.export_questions(temp_file.name)
+        
+        if success:
+            return send_file(temp_file.name, 
+                           as_attachment=True, 
+                           download_name='interview_questions.json',
+                           mimetype='application/json')
+        else:
+            return jsonify({"error": "Failed to export questions"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error exporting interview questions: {e}")
         return jsonify({"error": str(e)}), 500
 
 # Error handlers

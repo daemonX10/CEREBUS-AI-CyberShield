@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEREBUS - Interview Practice Session</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 300;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 3px;
+            width: 200px;
+        }
+        
+        .progress-fill {
+            background: white;
+            height: 20px;
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .session-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            text-align: center;
+        }
+        
+        .info-item strong {
+            display: block;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        .question-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        
+        .question-card.current {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+        
+        .question-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .question-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .question-meta {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .question-body {
+            padding: 20px;
+        }
+        
+        .question-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .scenario-question {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .scenario-question .label {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .answer-section {
+            margin-top: 20px;
+        }
+        
+        .reveal-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .reveal-btn:hover {
+            background: #218838;
+        }
+        
+        .answer-content {
+            display: none;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .answer-content.show {
+            display: block;
+        }
+        
+        .expected-approach {
+            background: #f8f9fa;
+            border-left: 4px solid #6c757d;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+        
+        .expected-approach h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .approach-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .approach-list li {
+            margin-bottom: 5px;
+        }
+        
+        .navigation {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background: #5a6fd8;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+        
+        .nav-btn.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .timer {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Interview Practice Session</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;">
+                    0 / {{ questions|length }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="session-info">
+                <div class="info-item">
+                    <strong>{{ session_config.topic|replace('_', ' ')|title if session_config.topic != 'all' else 'All Topics' }}</strong>
+                    <div>Topic Focus</div>
+                </div>
+                <div class="info-item">
+                    <strong>{{ session_config.difficulty|title if session_config.difficulty != 'all' else 'Mixed' }}</strong>
+                    <div>Difficulty Level</div>
+                </div>
+                <div class="info-item">
+                    <strong>{{ questions|length }}</strong>
+                    <div>Total Questions</div>
+                </div>
+                <div class="info-item">
+                    <strong class="timer" id="sessionTimer">00:00</strong>
+                    <div>Session Time</div>
+                </div>
+            </div>
+            
+            {% for question in questions %}
+            <div class="question-card {% if loop.first %}current{% endif %}" id="question-{{ loop.index }}">
+                <div class="question-header">
+                    <div class="question-number">{{ loop.index }}</div>
+                    <div class="question-meta">
+                        <strong>{{ question.topic|replace('_', ' ')|title }}</strong> | 
+                        {{ question.difficulty|title }} | 
+                        {{ question.category|replace('_', ' ')|title }}
+                        {% if question.get('type') == 'scenario' %}
+                        | <span style="color: #ffc107;">📋 Scenario</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="question-body">
+                    {% if question.get('type') == 'scenario' %}
+                    <div class="scenario-question">
+                        <div class="label">Scenario:</div>
+                        <div class="question-text">{{ question.question }}</div>
+                    </div>
+                    {% else %}
+                    <div class="question-text">{{ question.question }}</div>
+                    {% endif %}
+                    
+                    <div class="answer-section">
+                        <button class="reveal-btn" onclick="revealAnswer({{ loop.index }})">
+                            📖 Show Answer
+                        </button>
+                        
+                        <div class="answer-content" id="answer-{{ loop.index }}">
+                            {% if question.get('type') == 'scenario' %}
+                            <div class="expected-approach">
+                                <h4>Expected Approach:</h4>
+                                <ul class="approach-list">
+                                    {% for step in question.expected_approach %}
+                                    <li>{{ step }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% else %}
+                            <strong>Answer:</strong><br>
+                            {{ question.answer }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div id="completionMessage" class="hidden" style="text-align: center; padding: 40px; background: #d4edda; border-radius: 10px; margin-top: 30px;">
+                <h2 style="color: #155724; margin-bottom: 20px;">🎉 Session Complete!</h2>
+                <p style="color: #155724; font-size: 1.1em;">You've completed all {{ questions|length }} questions in <span id="finalTime">00:00</span></p>
+                <div style="margin-top: 20px;">
+                    <a href="/interview/practice" class="nav-btn">Start New Session</a>
+                    <a href="/interview" class="nav-btn secondary">Back to Interview Home</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <div>
+                <button class="nav-btn" onclick="previousQuestion()" id="prevBtn" disabled>← Previous</button>
+                <button class="nav-btn" onclick="nextQuestion()" id="nextBtn">Next →</button>
+            </div>
+            
+            <div>
+                <a href="/interview/practice" class="nav-btn secondary">New Session</a>
+                <a href="/interview" class="nav-btn secondary">Exit</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = {{ questions|length }};
+        let startTime = Date.now();
+        let answeredQuestions = new Set();
+        
+        // Timer functionality
+        function updateTimer() {
+            const elapsed = Date.now() - startTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('sessionTimer').textContent = timeString;
+            
+            if (currentQuestion <= totalQuestions) {
+                setTimeout(updateTimer, 1000);
+            } else {
+                document.getElementById('finalTime').textContent = timeString;
+            }
+        }
+        
+        updateTimer();
+        
+        function revealAnswer(questionNum) {
+            const answerDiv = document.getElementById(`answer-${questionNum}`);
+            const btn = event.target;
+            
+            if (answerDiv.classList.contains('show')) {
+                answerDiv.classList.remove('show');
+                btn.textContent = '📖 Show Answer';
+            } else {
+                answerDiv.classList.add('show');
+                btn.textContent = '🙈 Hide Answer';
+                answeredQuestions.add(questionNum);
+                updateProgress();
+            }
+        }
+        
+        function updateProgress() {
+            const progress = (answeredQuestions.size / totalQuestions) * 100;
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = `${progress}%`;
+            progressFill.textContent = `${answeredQuestions.size} / ${totalQuestions}`;
+        }
+        
+        function showQuestion(questionNum) {
+            // Hide all questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionCard = document.getElementById(`question-${i}`);
+                questionCard.classList.remove('current');
+                if (i !== questionNum) {
+                    questionCard.style.display = 'none';
+                }
+            }
+            
+            // Show current question
+            const currentCard = document.getElementById(`question-${questionNum}`);
+            currentCard.style.display = 'block';
+            currentCard.classList.add('current');
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = questionNum === 1;
+            document.getElementById('nextBtn').disabled = questionNum === totalQuestions;
+            
+            if (questionNum === totalQuestions) {
+                document.getElementById('nextBtn').textContent = 'Finish';
+            } else {
+                document.getElementById('nextBtn').textContent = 'Next →';
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            } else {
+                // Session complete
+                document.querySelector('.content').style.display = 'none';
+                document.getElementById('completionMessage').classList.remove('hidden');
+            }
+        }
+        
+        function previousQuestion() {
+            if (currentQuestion > 1) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft' && currentQuestion > 1) {
+                previousQuestion();
+            } else if (event.key === 'ArrowRight' && currentQuestion <= totalQuestions) {
+                nextQuestion();
+            } else if (event.key === ' ' || event.key === 'Enter') {
+                // Reveal answer for current question
+                const answerDiv = document.getElementById(`answer-${currentQuestion}`);
+                if (!answerDiv.classList.contains('show')) {
+                    revealAnswer(currentQuestion);
+                }
+                event.preventDefault();
+            }
+        });
+        
+        // Initialize - show only first question
+        showQuestion(1);
+        
+        // Add visual feedback for answered questions
+        setInterval(function() {
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionCard = document.getElementById(`question-${i}`);
+                if (answeredQuestions.has(i)) {
+                    questionCard.style.borderColor = '#28a745';
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
