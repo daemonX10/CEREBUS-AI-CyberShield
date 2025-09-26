@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEREBUS - Interview Practice Configuration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group select,
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group select:focus,
+        .form-group input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .info-box {
+            background: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+        
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        
+        .info-box p {
+            margin: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Interview Practice Setup</h1>
+            <p>Configure your cybersecurity interview session</p>
+        </div>
+        
+        <div class="content">
+            <a href="/interview" class="back-link">← Back to Interview Home</a>
+            
+            <div class="info-box">
+                <h3>About Interview Practice</h3>
+                <p>Practice cybersecurity interview questions tailored to your experience level and area of interest. Questions cover malware analysis, incident response, threat intelligence, and technical skills.</p>
+            </div>
+            
+            <form method="POST" action="/interview/practice">
+                <div class="form-group">
+                    <label for="topic">Topic Focus:</label>
+                    <select name="topic" id="topic">
+                        <option value="all">All Topics</option>
+                        {% for topic in topics %}
+                        <option value="{{ topic }}">{{ topic.replace('_', ' ').title() }}</option>
+                        {% endfor %}
+                    </select>
+                    <small>Choose a specific topic area or select "All Topics" for variety</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="difficulty">Difficulty Level:</label>
+                    <select name="difficulty" id="difficulty">
+                        <option value="all">Mixed Difficulty</option>
+                        {% for difficulty in difficulties %}
+                        <option value="{{ difficulty }}">{{ difficulty.title() }}</option>
+                        {% endfor %}
+                    </select>
+                    <small>Choose your experience level or mix difficulties for challenge</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="count">Number of Questions:</label>
+                    <input type="number" name="count" id="count" min="1" max="20" value="5">
+                    <small>How many questions would you like in this session? (1-20)</small>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="include_scenarios" id="include_scenarios">
+                        <label for="include_scenarios">Include Scenario-Based Questions</label>
+                    </div>
+                    <small>Scenario questions present real-world situations requiring detailed analysis</small>
+                </div>
+                
+                <button type="submit" class="submit-btn">🚀 Start Practice Session</button>
+            </form>
+            
+            <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e9ecef;">
+                <h3>Quick Start Options</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <button onclick="quickStart('malware_analysis', 'beginner')" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Beginner Malware Analysis</button>
+                    <button onclick="quickStart('incident_response', 'intermediate')" style="background: #ffc107; color: black; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Intermediate IR</button>
+                    <button onclick="quickStart('all', 'advanced')" style="background: #dc3545; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Advanced Mixed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function quickStart(topic, difficulty) {
+            document.getElementById('topic').value = topic;
+            document.getElementById('difficulty').value = difficulty;
+            document.getElementById('count').value = topic === 'all' ? 10 : 5;
+            document.querySelector('form').submit();
+        }
+        
+        // Add some visual feedback
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            form.addEventListener('submit', function() {
+                submitBtn.textContent = '⏳ Generating Questions...';
+                submitBtn.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html>

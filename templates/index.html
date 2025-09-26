@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEREBUS - AI-Powered Malware Analysis Shield</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 3em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .feature-card.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .feature-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .feature-description {
+            opacity: 0.9;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        
+        .status-indicator.online {
+            background: #28a745;
+        }
+        
+        .status-indicator.offline {
+            background: #dc3545;
+        }
+        
+        .section-title {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .quick-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #495057;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .quick-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+        
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ CEREBUS</h1>
+            <p>AI-Powered Malware Analysis Shield</p>
+        </div>
+        
+        <div class="content">
+            {% if error %}
+            <div class="error-msg">
+                <strong>Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+            
+            <h2 class="section-title">System Features</h2>
+            <div class="features-grid">
+                <a href="/analyze" class="feature-card {% if not features.ml_model %}disabled{% endif %}">
+                    <span class="feature-icon">🔍</span>
+                    <div class="feature-title">
+                        File Analysis
+                        <span class="status-indicator {% if features.ml_model %}online{% else %}offline{% endif %}"></span>
+                    </div>
+                    <div class="feature-description">
+                        Upload and analyze files for malware detection using AI-powered static and dynamic analysis
+                    </div>
+                </a>
+                
+                <a href="/batch" class="feature-card {% if not features.batch_processor %}disabled{% endif %}">
+                    <span class="feature-icon">📊</span>
+                    <div class="feature-title">
+                        Batch Analysis
+                        <span class="status-indicator {% if features.batch_processor %}online{% else %}offline{% endif %}"></span>
+                    </div>
+                    <div class="feature-description">
+                        Process multiple files simultaneously with optimized memory management and detailed reporting
+                    </div>
+                </a>
+                
+                <a href="/realtime" class="feature-card {% if not features.realtime_monitor %}disabled{% endif %}">
+                    <span class="feature-icon">⚡</span>
+                    <div class="feature-title">
+                        Real-time Monitor
+                        <span class="status-indicator {% if features.realtime_monitor %}online{% else %}offline{% endif %}"></span>
+                    </div>
+                    <div class="feature-description">
+                        Monitor directories in real-time for new files and automatically analyze potential threats
+                    </div>
+                </a>
+                
+                <a href="/interview" class="feature-card {% if not features.interview_generator %}disabled{% endif %}">
+                    <span class="feature-icon">🧠</span>
+                    <div class="feature-title">
+                        Interview Questions
+                        <span class="status-indicator {% if features.interview_generator %}online{% else %}offline{% endif %}"></span>
+                    </div>
+                    <div class="feature-description">
+                        Practice cybersecurity and malware analysis interview questions for skill assessment
+                    </div>
+                </a>
+                
+                <button class="feature-card" onclick="showApiInfo()">
+                    <span class="feature-icon">🔌</span>
+                    <div class="feature-title">API Access</div>
+                    <div class="feature-description">
+                        RESTful API endpoints for programmatic access to all analysis features
+                    </div>
+                </button>
+                
+                <a href="/status" class="feature-card">
+                    <span class="feature-icon">📈</span>
+                    <div class="feature-title">System Status</div>
+                    <div class="feature-description">
+                        View detailed system status, component health, and performance metrics
+                    </div>
+                </a>
+            </div>
+            
+            <div class="quick-actions">
+                <a href="/api/status" class="quick-btn">System Health</a>
+                <a href="/interview/question?difficulty=beginner" class="quick-btn">Quick Question</a>
+                <a href="https://github.com/daemonX10/CEREBUS-AI-CyberShield" class="quick-btn" target="_blank">Documentation</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Info Modal -->
+    <div id="apiModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; max-width: 600px; width: 90%;">
+            <h3>API Endpoints</h3>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                <code>POST /api/analyze</code> - Analyze a single file<br>
+                <code>GET /api/status</code> - System status<br>
+                <code>GET /interview/question</code> - Get interview question<br>
+                <code>POST /interview/question-set</code> - Get question set<br>
+                <code>GET /api/interview/topics</code> - Available topics
+            </div>
+            <div style="text-align: right;">
+                <button onclick="closeApiModal()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showApiInfo() {
+            document.getElementById('apiModal').style.display = 'block';
+        }
+        
+        function closeApiModal() {
+            document.getElementById('apiModal').style.display = 'none';
+        }
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeApiModal();
+            }
+        });
+        
+        // Close modal on background click
+        document.getElementById('apiModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeApiModal();
+            }
+        });
+    </script>
+</body>
+</html>
